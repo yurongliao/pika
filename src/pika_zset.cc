@@ -330,13 +330,14 @@ void ZRangebyscoreCmd::Do(std::shared_ptr<Partition> partition) {
     return;
   }
   std::vector<blackwidow::ScoreMember> score_members;
-  rocksdb::Status s = partition->db()->ZRangebyscore(key_, min_score_, max_score_, left_close_, right_close_, &score_members);
+  rocksdb::Status s = partition->db()->ZRangebyscore(key_, min_score_, max_score_, left_close_, right_close_, count_, offset_, &score_members);
   if (!s.ok() && !s.IsNotFound()) {
     res_.SetRes(CmdRes::kErrOther, s.ToString());
     return;
   }
-  FitLimit(count_, offset_, score_members.size());
-  size_t index = offset_, end = offset_ + count_;
+  count_ = score_members.size();
+  size_t index = 0;
+  size_t end = count_;
   if (with_scores_) {
     char buf[32];
     int64_t len;
@@ -381,13 +382,14 @@ void ZRevrangebyscoreCmd::Do(std::shared_ptr<Partition> partition) {
     return;
   }
   std::vector<blackwidow::ScoreMember> score_members;
-  rocksdb::Status s = partition->db()->ZRevrangebyscore(key_, min_score_, max_score_, left_close_, right_close_, &score_members);
+  rocksdb::Status s = partition->db()->ZRevrangebyscore(key_, min_score_, max_score_, left_close_, right_close_, count_, offset_, &score_members);
   if (!s.ok() && !s.IsNotFound()) {
     res_.SetRes(CmdRes::kErrOther, s.ToString());
     return;
   }
-  FitLimit(count_, offset_, score_members.size());
-  int64_t index = offset_, end = offset_ + count_;
+  count_ = score_members.size();
+  size_t index = 0;
+  size_t end = count_;
   if (with_scores_) {
     char buf[32];
     int64_t len;
